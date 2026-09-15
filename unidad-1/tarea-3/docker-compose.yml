@@ -1,0 +1,39 @@
+services:
+  mysql_db:
+    image: mysql:8.0
+    container_name: mysql_local
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+    ports:
+      - "3307:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+  postgres_db:
+    image: postgres:16-alpine
+    container_name: postgres_local
+    environment:
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: mi_base_datos
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+  
+  pg_admin_local:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin_local
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: secret
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - postgres_db
+
+volumes:
+  db_data:
+  pg_data:
+  pgadmin_data:
