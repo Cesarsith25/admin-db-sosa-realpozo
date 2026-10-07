@@ -1,0 +1,5 @@
+CREATE TABLE cuentas (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    titular VARCHAR(100) NOT NULL,
+    saldo DECIMAL(10, 2) NOT NULL CHECK (saldo >= 0)
+) ENGINE=InnoDB;

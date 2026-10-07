@@ -1,0 +1,93 @@
+// =====================================================
+// Centro de Rescate de Fauna Silvestre "Selva Viva"
+// =====================================================
+
+Table bioma {
+  id_bioma int [pk, increment]
+  nombre varchar(60) [not null, unique]
+  clima varchar(40) [not null, note: 'TROPICAL / ARIDO / TEMPLADO / FRIO']
+}
+
+Table especie {
+  id_especie int [pk, increment]
+  nombre_comun varchar(100) [not null]
+  nombre_cientifico varchar(150) [not null, unique]
+  id_bioma int [not null]
+  habito varchar(20) [not null, note: 'DIURNO / NOCTURNO / CREPUSCULAR']
+  tipo varchar(20) [not null, note: 'MAMIFERO / AVE / REPTIL / ANFIBIO']
+
+  indexes {
+    (id_especie, id_bioma, tipo) [unique]
+  }
+}
+
+Table recinto {
+  id_recinto int [pk, increment]
+  nombre varchar(100) [not null, unique]
+  id_bioma int [not null]
+  tipo_permitido varchar(20) [not null, note: 'MAMIFERO / AVE / REPTIL / ANFIBIO']
+  capacidad_maxima int [not null]
+  cupo_disponible int [not null]
+
+  indexes {
+    (id_recinto, id_bioma, tipo_permitido) [unique]
+  }
+}
+
+Table animal {
+  id_animal int [pk, increment]
+  num_expediente varchar(20) [not null, unique]
+  id_especie int [not null]
+  id_bioma_especie int [not null]
+  tipo_especie varchar(20) [not null]
+  id_recinto int [null]
+  id_bioma_recinto int [null]
+  tipo_recinto varchar(20) [null]
+  alias varchar(60)
+  sexo char(1) [not null, note: 'M / H / D']
+  fecha_ingreso datetime [not null]
+  estado_salud varchar(20) [not null, note: 'CRITICO / GRAVE / ESTABLE / RECUPERADO']
+  situacion varchar(20) [not null, default: 'EN_RESGUARDO', note: 'EN_RESGUARDO / TRASLADADO / LIBERADO / FALLECIDO']
+}
+
+Table personal {
+  id_personal int [pk, increment]
+  nombre varchar(100) [not null]
+  puesto varchar(20) [not null, note: 'RECEPCION / VETERINARIO / ADMIN']
+  cedula_profesional varchar(20) [null]
+}
+
+Table evaluacion_medica {
+  id_evaluacion int [pk, increment]
+  id_animal int [not null]
+  id_veterinario int [not null]
+  fecha_evaluacion datetime [not null]
+  diagnostico text [not null]
+  tratamiento text [null]
+  peso_kg decimal(7,2) [null]
+  estado_salud varchar(20) [not null, note: 'CRITICO / GRAVE / ESTABLE / RECUPERADO']
+  observaciones text [null]
+}
+
+Table bitacora_movimiento {
+  id_movimiento int [pk, increment]
+  id_animal int [not null]
+  tipo_movimiento varchar(20) [not null, note: 'INGRESO / TRASLADO_INTERNO / TRASLADO_EXTERNO / ALTA']
+  id_recinto_origen int [null]
+  id_recinto_destino int [null]
+  institucion_destino varchar(150) [null]
+  motivo varchar(255) [not null]
+  fecha_movimiento datetime [not null]
+  id_personal int [not null]
+}
+
+Ref: especie.id_bioma > bioma.id_bioma
+Ref: recinto.id_bioma > bioma.id_bioma
+Ref: animal.(id_especie, id_bioma_especie, tipo_especie) > especie.(id_especie, id_bioma, tipo)
+Ref: animal.(id_recinto, id_bioma_recinto, tipo_recinto) > recinto.(id_recinto, id_bioma, tipo_permitido)
+Ref: evaluacion_medica.id_animal > animal.id_animal
+Ref: evaluacion_medica.id_veterinario > personal.id_personal
+Ref: bitacora_movimiento.id_animal > animal.id_animal
+Ref: bitacora_movimiento.id_recinto_origen > recinto.id_recinto
+Ref: bitacora_movimiento.id_recinto_destino > recinto.id_recinto
+Ref: bitacora_movimiento.id_personal > personal.id_personal
